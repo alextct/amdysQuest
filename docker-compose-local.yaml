@@ -1,0 +1,96 @@
+version: "3.7"
+
+volumes:
+  ? dump
+
+services:
+  code:
+    build: ./code
+    image: ${DOCKER_REGISTRY}/code:master
+
+  init:
+    build: ./andysQuest-php
+    entrypoint: /entrypoints/init.sh
+    image: ${DOCKER_REGISTRY}/andysQuest-php:latest
+    volumes:
+      - ./code:/var/www/html
+      - ./logs:/var/log/apache2
+    environment:
+      - APPLICATION_ENV=${APPLICATION_ENV}
+      - CHARISMA_SERVER_NAME
+      - CHARISMA_DB_DRIVER
+      - APACHE_RUN_USER=nobody
+      - HOST_NAME=${HOST_NAME}
+      - STORAGE_BOOKING_LOGS_AWS_PATH
+      - STORAGE_BOOKING_LOGS_PATH
+      - STORAGE_EMAIL_LOGS_PATH
+      - STORAGE_UPLOADS_PATH
+      - STORAGE_UPLOADS_URL
+      - STORAGE_DOWNLOADS_DOCS_URL
+      - STORAGE_DOWNLOADS_PATH
+      - STORAGE_FTP
+      - HOST
+      - MAIN_HOSTNAME
+      - MAIN_USERNAME
+      - MAIN_PASSWORD
+      - MAIN_DATABASE
+      - MAIN_PORT
+      - LOCAL_HOSTNAME
+      - LOCAL_USERNAME
+      - LOCAL_PASSWORD
+      - LOCAL_DATABASE
+      - LOCAL_PORT
+      - STORAGE_B2C_TEMPORARY_LOGS_PATH
+      - TRAVIOLA_DB_DRIVER
+    tmpfs:
+      - /tmp
+
+  php:
+    restart: always
+    build: ./andysQuest-php
+    image: ${DOCKER_REGISTRY}/andysQuest-php:latest
+    volumes: 
+      - ./tct-travel-code:/var/www/html
+      - ./logs:/var/log/apache2
+      
+    environment:
+      - APPLICATION_ENV=${APPLICATION_ENV}
+      - APACHE_RUN_USER=nobody
+      - CHARISMA_SERVER_NAME
+      - CHARISMA_DB_DRIVER
+      - HOST_NAME=${HOST_NAME}
+      - STORAGE_BOOKING_LOGS_AWS_PATH
+      - STORAGE_BOOKING_LOGS_PATH
+      - STORAGE_TEMPORARY_LOGS_PATH
+      - STORAGE_EMAIL_LOGS_PATH
+      - STORAGE_UPLOADS_PATH
+      - STORAGE_UPLOADS_URL
+      - STORAGE_DOWNLOADS_DOCS_URL
+      - STORAGE_DOWNLOADS_PATH
+      - STORAGE_FTP
+      - HOST
+      - CRM_URL
+      - SENDGRID_APIKEY
+      - REPORTS_URL
+      - MAIN_HOSTNAME
+      - MAIN_USERNAME
+      - MAIN_PASSWORD
+      - MAIN_DATABASE
+      - MAIN_PORT
+      - LOCAL_HOSTNAME
+      - LOCAL_USERNAME
+      - LOCAL_PASSWORD
+      - LOCAL_DATABASE
+      - LOCAL_PORT
+      - STORAGE_B2C_TEMPORARY_LOGS_PATH
+      - SERVICE_80_NAME=travel
+      - SERVICE_TAGS=server_name=${HOST_NAME}, server_ssl=${HOST_NAME}, default_server=${HOST_NAME}
+      - TRAVIOLA_DB_DRIVER
+    tmpfs:
+      - /tmp
+    ports:
+      - "80"
+    restart: always
+    image: ${DOCKER_REGISTRY}/tct-travel-redis:master
+    ports:
+      - "56379:6379"
